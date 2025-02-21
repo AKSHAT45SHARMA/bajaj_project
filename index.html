@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joe Data</title>
+</head>
+<body>
+    <h1>Joe Data</h1>
+    <textarea id="jsonInput" placeholder='Enter JSON input'></textarea>
+    <button onclick="handleSubmit()">Submit</button>
+    <p id="error" style="color: red;"></p>
+    <select id="filters" multiple>
+        <option value="alphabets">Alphabets</option>
+        <option value="numbers">Numbers</option>
+        <option value="highest_alphabet">Highest Alphabet</option>
+    </select>
+    <div id="response"></div>
+
+    <script>
+        async function handleSubmit() {
+            const jsonInput = document.getElementById("jsonInput").value;
+            try {
+                const parsedData = JSON.parse(jsonInput);
+
+                const response = await fetch("http://localhost:3000/bfhl", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(parsedData),
+                });
+
+                const result = await response.json();
+                renderResponse(result);
+            } catch (err) {
+                document.getElementById("error").textContent = "Invalid JSON format";
+            }
+        }
+
+        function renderResponse(responseData) {
+            let output = "";
+            const selectedFilters = Array.from(document.getElementById("filters").selectedOptions).map(opt => opt.value);
+
+            if (selectedFilters.includes("alphabets")) {
+                output += `<p>Alphabets: ${JSON.stringify(responseData.alphabets)}</p>`;
+            }
+            if (selectedFilters.includes("numbers")) {
+                output += `<p>Numbers: ${JSON.stringify(responseData.numbers)}</p>`;
+            }
+            if (selectedFilters.includes("highest_alphabet")) {
+                output += `<p>Highest Alphabet: ${JSON.stringify(responseData.highest_alphabet)}</p>`;
+            }
+
+            document.getElementById("response").innerHTML = output;
+        }
+    </script>
+</body>
+</html>
